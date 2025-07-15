@@ -1,49 +1,107 @@
-# Makefile for tetris-optimizer
 
-# Compiler
-GO = go
+# Variables
+BINARY_NAME=tetris-optimizer
+MAIN_PATH=./cmd
+GO_FILES=$(shell find . -name "*.go")
 
-# Project name
-NAME = tetris-optimizer
+# Default target
+.PHONY: all
+all: build
 
-# Source files
-SRC = main.go
-
-# Test files
-TEST_FILES = $(wildcard *_test.go)
-
-# Build flags
-BUILD_FLAGS = 
-
-.PHONY: all build test clean run
-
-all: build test
-
+# Build the application
+.PHONY: build
 build:
-	@$(GO) build $(BUILD_FLAGS) -o $(NAME) $(SRC)
+	@echo "Building $(BINARY_NAME)..."
+	@go build -o $(BINARY_NAME) $(MAIN_PATH)
 
-test:
-	@$(GO) test -v $(TEST_FILES) $(SRC)
-
-clean:
-	@rm -f $(NAME)
-	@rm -f *.out
-
+# Run the application
+.PHONY: run
 run: build
-	@./$(NAME)
+	@echo "Running $(BINARY_NAME)..."
+	@./$(BINARY_NAME)
+
+# Run with arguments
+.PHONY: run-with-args
+run-with-args: build
+	@echo "Running $(BINARY_NAME) with arguments..."
+	@./$(BINARY_NAME) $(ARGS)
+
+# Run tests
+.PHONY: test
+test:
+	@echo "Running tests..."
+	@go test -v ./tests/...
+
+# Run tests with coverage
+.PHONY: test-coverage
+test-coverage:
+	@echo "Running tests with coverage..."
+	@go test -v -cover ./tests/...
+
+# Generate detailed coverage report
+.PHONY: coverage-report
+coverage-report:
+	@echo "Generating coverage report..."
+	@go test -coverprofile=coverage.out ./tests/...
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+# Clean build artifacts
+.PHONY: clean
+clean:
+	@echo "Cleaning..."
+	@rm -f $(BINARY_NAME)
+	@rm -f coverage.out
+	@rm -f coverage.html
 
 # Format code
+.PHONY: fmt
 fmt:
-	@$(GO) fmt ./...
+	@echo "Formatting code..."
+	@go fmt ./...
 
-# Run with sample file
-sample: build
-	@./$(NAME) sample.txt
+# Lint code
+.PHONY: lint
+lint:
+	@echo "Linting code..."
+	@go vet ./...
 
-# Install dependencies (if any)
-# install:
-#	@$(GO) mod download
+# Run all quality checks
+.PHONY: check
+check: fmt lint test
 
-# Lint check (if you want to add later)
-# lint:
-#	@golangci-lint run
+# Install dependencies
+.PHONY: deps
+deps:
+	@echo "Installing dependencies..."
+	@go mod download
+	@go mod tidy
+
+# Initialize module (run once)
+.PHONY: init
+init:
+	@echo "Initializing Go module..."
+	@go mod init tetris-optimizer
+
+# Development target - format, lint, test, and build
+.PHONY: dev
+dev: fmt lint test build
+
+# Help target
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "  build         - Build the application"
+	@echo "  run           - Build and run the application"
+	@echo "  run-with-args - Run with arguments (use ARGS=...)"
+	@echo "  test          - Run tests"
+	@echo "  test-coverage - Run tests with coverage"
+	@echo "  coverage-report - Generate HTML coverage report"
+	@echo "  clean         - Clean build artifacts"
+	@echo "  fmt           - Format code"
+	@echo "  lint          - Lint code"
+	@echo "  check         - Run all quality checks"
+	@echo "  deps          - Install dependencies"
+	@echo "  init          - Initialize Go module"
+	@echo "  dev           - Development workflow (fmt, lint, test, build)"
+	@echo "  help          - Show this help message"
