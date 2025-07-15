@@ -296,7 +296,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For questions, issues, or contributions:
-- 📧 Email: [your-email@example.com](skisengese@outlook.com)
+- 📧 Email: skisengese@outlook.com
 - 🐛 Issues: [GitHub Issues](https://github.com/stkisengese/tetris-optimizer/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/stkisengese/tetris-optimizer/discussions)
 
