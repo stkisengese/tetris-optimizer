@@ -211,3 +211,71 @@ func isConnected(grid []string) bool {
 	// All blocks should be connected
 	return connectedCount == len(blocks)
 }
+
+// isBlockAt checks if there's a block at the given position
+func isBlockAt(grid []string, x, y int) bool {
+	if y < 0 || y >= len(grid) || x < 0 || x >= len(grid[y]) {
+		return false
+	}
+	return grid[y][x] == '#'
+}
+
+// ValidateFile performs quick validation of file format without full parsing
+func ValidateFile(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return NewParseError(fmt.Sprintf("cannot open file: %v", err), 0, filename)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	lineNumber := 0
+	gridLines := 0
+	hasContent := false
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lineNumber++
+
+		// Skip empty lines
+		if strings.TrimSpace(line) == "" {
+			if gridLines > 0 && gridLines != 4 {
+				return NewParseError(fmt.Sprintf("incomplete tetromino grid (expected 4 lines, got %d)", gridLines), lineNumber, filename)
+			}
+			gridLines = 0
+			continue
+		}
+
+		hasContent = true
+		gridLines++
+
+		// Check line length and characters
+		trimmed := strings.TrimRight(line, " \t")
+		if len(trimmed) > 4 {
+			return NewParseError(fmt.Sprintf("line too long: expected max 4 characters, got %d", len(trimmed)), lineNumber, filename)
+		}
+
+		// Check for invalid characters
+		for i, char := range trimmed {
+			if char != '#' && char != '.' {
+				return NewParseError(fmt.Sprintf("invalid character '%c' at position %d", char, i), lineNumber, filename)
+			}
+		}
+
+		// Reset grid line count after complete tetromino
+		if gridLines == 4 {
+			gridLines = 0
+		}
+	}
+
+	// Check for incomplete tetromino at end
+	if gridLines > 0 && gridLines != 4 {
+		return NewParseError(fmt.Sprintf("incomplete tetromino grid at end of file (expected 4 lines, got %d)", gridLines), lineNumber, filename)
+	}
+
+	if !hasContent {
+		return NewParseError("file is empty or contains only whitespace", 0, filename)
+	}
+
+	return scanner.Err()
+}
