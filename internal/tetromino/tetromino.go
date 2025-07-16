@@ -2,6 +2,7 @@ package tetromino
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -111,6 +112,11 @@ func (t *Tetromino) Copy() *Tetromino {
 	}
 }
 
+// Clone is an alias for Copy for backward compatibility
+func (t *Tetromino) Clone() *Tetromino {
+	return t.Copy()
+}
+
 // SetPosition updates the tetromino's position on the grid
 func (t *Tetromino) SetPosition(x, y int) {
 	t.Position = Point{X: x, Y: y}
@@ -123,6 +129,39 @@ func (t *Tetromino) GetAbsolutePoints() []Point {
 		result[i] = p.Add(t.Position)
 	}
 	return result
+}
+
+// GetBlocks returns the absolute coordinates of all blocks (Issue #5 requirement)
+func (t *Tetromino) GetBlocks() []Point {
+	return t.GetAbsolutePoints()
+}
+
+// GetBounds returns the bounding box coordinates (Issue #5 requirement)
+func (t *Tetromino) GetBounds() (minX, minY, maxX, maxY int) {
+	points := t.GetAbsolutePoints()
+	if len(points) == 0 {
+		return 0, 0, 0, 0
+	}
+	
+	minX, minY = points[0].X, points[0].Y
+	maxX, maxY = points[0].X, points[0].Y
+	
+	for _, p := range points[1:] {
+		if p.X < minX {
+			minX = p.X
+		}
+		if p.X > maxX {
+			maxX = p.X
+		}
+		if p.Y < minY {
+			minY = p.Y
+		}
+		if p.Y > maxY {
+			maxY = p.Y
+		}
+	}
+	
+	return minX, minY, maxX, maxY
 }
 
 // Rotate90 rotates the tetromino 90 degrees clockwise
@@ -140,6 +179,58 @@ func (t *Tetromino) Rotate90() {
 	
 	// Swap width and height
 	t.Width, t.Height = t.Height, t.Width
+}
+
+// GenerateRotations generates all unique rotations of the tetromino (Issue #6 requirement)
+func (t *Tetromino) GenerateRotations() []*Tetromino {
+	rotations := make([]*Tetromino, 0, 4)
+	current := t.Copy()
+	
+	seen := make(map[string]bool)
+	
+	for i := 0; i < 4; i++ {
+		key := current.ShapeKey()
+		if !seen[key] {
+			rotations = append(rotations, current.Copy())
+			seen[key] = true
+		}
+		current.Rotate90()
+	}
+	
+	return rotations
+}
+
+// Normalize positions the tetromino at the origin (Issue #6 requirement)
+func (t *Tetromino) Normalize() {
+	t.Points = t.normalizePoints(t.Points)
+}
+
+// Translate adjusts the tetromino's position by the given offset (Issue #6 requirement)
+func (t *Tetromino) Translate(dx, dy int) {
+	t.Position.X += dx
+	t.Position.Y += dy
+}
+
+// IsEquivalent checks if two tetrominoes have the same shape (Issue #6 requirement)
+func (t *Tetromino) IsEquivalent(other *Tetromino) bool {
+	if t.ID != other.ID {
+		return false
+	}
+	
+	// Generate all rotations of both tetrominoes
+	rotations1 := t.GenerateRotations()
+	rotations2 := other.GenerateRotations()
+	
+	// Check if any rotation of t matches any rotation of other
+	for _, r1 := range rotations1 {
+		for _, r2 := range rotations2 {
+			if r1.shapeEquals(r2) {
+				return true
+			}
+		}
+	}
+	
+	return false
 }
 
 // normalizePoints adjusts points so the minimum x and y are 0
@@ -164,6 +255,43 @@ func (t *Tetromino) normalizePoints(points []Point) []Point {
 	}
 	
 	return normalized
+}
+
+// shapeKey generates a unique string key for the tetromino shape
+func (t *Tetromino) ShapeKey() string {
+	// Sort points to ensure consistent ordering
+	points := make([]Point, len(t.Points))
+	copy(points, t.Points)
+	
+	sort.Slice(points, func(i, j int) bool {
+		if points[i].Y == points[j].Y {
+			return points[i].X < points[j].X
+		}
+		return points[i].Y < points[j].Y
+	})
+	
+	var builder strings.Builder
+	for i, p := range points {
+		if i > 0 {
+			builder.WriteString(",")
+		}
+		builder.WriteString(fmt.Sprintf("%d:%d", p.X, p.Y))
+	}
+	
+	return builder.String()
+}
+
+// shapeEquals compares two tetrominoes for shape equality (ignoring position)
+func (t *Tetromino) shapeEquals(other *Tetromino) bool {
+	if len(t.Points) != len(other.Points) {
+		return false
+	}
+	
+	if t.Width != other.Width || t.Height != other.Height {
+		return false
+	}
+	
+	return t.ShapeKey() == other.ShapeKey()
 }
 
 // String returns a string representation of the tetromino
