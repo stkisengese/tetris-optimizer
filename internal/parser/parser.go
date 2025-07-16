@@ -161,3 +161,53 @@ func processTetromino(grid []string, id rune, lineNumber int, filename string) (
 
 	return tetro, nil
 }
+
+// isConnected checks if all blocks in a tetromino are connected
+func isConnected(grid []string) bool {
+	// Find all block positions
+	var blocks []tetromino.Point
+	for y, line := range grid {
+		for x, char := range line {
+			if char == '#' {
+				blocks = append(blocks, tetromino.Point{X: x, Y: y})
+			}
+		}
+	}
+
+	if len(blocks) == 0 {
+		return false
+	}
+
+	// Use flood fill to check connectivity
+	visited := make(map[tetromino.Point]bool)
+	queue := []tetromino.Point{blocks[0]}
+	visited[blocks[0]] = true
+	connectedCount := 1
+
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+
+		// Check all 4 adjacent positions
+		directions := []tetromino.Point{
+			{X: 0, Y: -1}, // Up
+			{X: 0, Y: 1},  // Down
+			{X: -1, Y: 0}, // Left
+			{X: 1, Y: 0},  // Right
+		}
+
+		for _, dir := range directions {
+			next := current.Add(dir)
+			
+			// Check if next position is a block and not visited
+			if !visited[next] && isBlockAt(grid, next.X, next.Y) {
+				visited[next] = true
+				queue = append(queue, next)
+				connectedCount++
+			}
+		}
+	}
+
+	// All blocks should be connected
+	return connectedCount == len(blocks)
+}
