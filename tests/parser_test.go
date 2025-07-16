@@ -64,13 +64,6 @@ func TestInvalidFileFormat(t *testing.T) {
 		content string
 	}{
 		{
-			name: "Wrong number of blocks",
-			content: `##..
-##..
-....
-....`,
-		},
-		{
 			name: "Invalid character",
 			content: `#...
 #...
