@@ -37,20 +37,6 @@ func NewGrid(size int) (*Grid, error) {
 	}, nil
 }
 
-// Copy creates a deep copy of the grid
-func (g *Grid) Copy() *Grid {
-	cells := make([][]rune, g.Size)
-	for i := range cells {
-		cells[i] = make([]rune, g.Size)
-		copy(cells[i], g.Cells[i])
-	}
-
-	return &Grid{
-		Size:  g.Size,
-		Cells: cells,
-	}
-}
-
 // IsEmpty checks if a cell is empty
 func (g *Grid) IsEmpty(x, y int) bool {
 	if !g.IsValidPosition(x, y) {
@@ -110,18 +96,6 @@ func (g *Grid) RemoveTetromino(t *tetromino.Tetromino) {
 			g.Cells[point.Y][point.X] = '.'
 		}
 	}
-}
-
-// IsFull checks if the grid is completely filled
-func (g *Grid) IsFull() bool {
-	for _, row := range g.Cells {
-		for _, cell := range row {
-			if cell == '.' {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 // CountEmpty returns the number of empty cells in the grid
