@@ -3,9 +3,9 @@ package parser
 import (
 	"bufio"
 	"fmt"
+	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 	"os"
 	"strings"
-	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 )
 
 // ParseError represents errors that occur during parsing
@@ -117,24 +117,24 @@ func processTetromino(grid []string, id rune, lineNumber int, filename string) (
 	for i, line := range grid {
 		// Remove trailing whitespace but preserve length validation
 		trimmed := strings.TrimRight(line, " \t")
-		
+
 		// Check for invalid characters
 		for j, char := range trimmed {
 			if char != '#' && char != '.' {
 				return nil, NewParseError(fmt.Sprintf("invalid character '%c' at position %d in line %d", char, j, i+1), lineNumber, filename)
 			}
 		}
-		
+
 		// Ensure line is exactly 4 characters (pad with dots if needed)
 		if len(trimmed) > 4 {
 			return nil, NewParseError(fmt.Sprintf("line %d too long: expected 4 characters, got %d", i+1, len(trimmed)), lineNumber, filename)
 		}
-		
+
 		// Pad with dots if line is shorter than 4 characters
 		for len(trimmed) < 4 {
 			trimmed += "."
 		}
-		
+
 		normalizedGrid[i] = trimmed
 	}
 
@@ -143,7 +143,7 @@ func processTetromino(grid []string, id rune, lineNumber int, filename string) (
 	for _, line := range normalizedGrid {
 		blockCount += strings.Count(line, "#")
 	}
-	
+
 	if blockCount != 4 {
 		return nil, NewParseError(fmt.Sprintf("tetromino must have exactly 4 blocks, got %d", blockCount), lineNumber, filename)
 	}
@@ -198,7 +198,7 @@ func isConnected(grid []string) bool {
 
 		for _, dir := range directions {
 			next := current.Add(dir)
-			
+
 			// Check if next position is a block and not visited
 			if !visited[next] && isBlockAt(grid, next.X, next.Y) {
 				visited[next] = true

@@ -38,16 +38,16 @@ func NormalizeGrid(grid []string) ([]string, error) {
 	normalized := make([]string, 4)
 	for i, line := range grid {
 		trimmed := strings.TrimRight(line, " \t")
-		
+
 		if len(trimmed) > 4 {
 			return nil, fmt.Errorf("line %d too long: expected max 4 characters, got %d", i+1, len(trimmed))
 		}
-		
+
 		// Pad with dots if needed
 		for len(trimmed) < 4 {
 			trimmed += "."
 		}
-		
+
 		normalized[i] = trimmed
 	}
 
