@@ -87,3 +87,47 @@ func SolveTetris(tetrominoes []*tetromino.Tetromino, gridSize int) (*Result, err
 	}, nil
 }
 
+// backtrack implements the recursive backtracking algorithm
+func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool {
+	// Base case: all tetrominoes placed
+	if index >= len(tetrominoes) {
+		return true
+	}
+
+	current := tetrominoes[index]
+
+	// Try all rotations of the current tetromino
+	rotations := current.GenerateRotations()
+
+	for _, rotation := range rotations {
+		// Try all positions on the grid
+		for y := 0; y <= g.Size-rotation.Height; y++ {
+			for x := 0; x <= g.Size-rotation.Width; x++ {
+				// Check if we can place the tetromino at this position
+				if g.CanPlaceTetromino(rotation, x, y) {
+					// Early pruning: check if remaining pieces can fit
+					if !canFitRemaining(g, tetrominoes, index, rotation, x, y) {
+						continue
+					}
+
+					// Place the tetromino
+					err := g.PlaceTetromino(rotation, x, y)
+					if err != nil {
+						continue
+					}
+
+					// Recursively try to place the next tetromino
+					if backtrack(g, tetrominoes, index+1) {
+						return true
+					}
+
+					// Backtrack: remove the tetromino
+					g.RemoveTetromino(rotation)
+				}
+			}
+		}
+	}
+
+	return false
+}
+
