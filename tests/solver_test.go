@@ -49,6 +49,123 @@ func TestCalculateMinSquareSize(t *testing.T) {
 	}
 }
 
+func TestSolveTetris(t *testing.T) {
+	tests := []struct {
+		name        string
+		tetrominoes []*tetromino.Tetromino
+		gridSize    int
+		expectSolve bool
+	}{
+		{
+			name:        "empty tetrominoes",
+			tetrominoes: []*tetromino.Tetromino{},
+			gridSize:    4,
+			expectSolve: false,
+		},
+		{
+			name:        "single L-piece in 2x2",
+			tetrominoes: createLPiece(),
+			gridSize:    2,
+			expectSolve: false, // L-piece can't fit in 2x2
+		},
+		{
+			name:        "single L-piece in 3x3",
+			tetrominoes: createLPiece(),
+			gridSize:    3,
+			expectSolve: true,
+		},
+		{
+			name:        "single I-piece in 4x4",
+			tetrominoes: createIPiece(),
+			gridSize:    4,
+			expectSolve: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := solver.SolveTetris(tt.tetrominoes, tt.gridSize)
+			if err != nil {
+				t.Errorf("SolveTetris() error = %v", err)
+				return
+			}
+
+			if result.Success != tt.expectSolve {
+				t.Errorf("SolveTetris() success = %v, expected %v", result.Success, tt.expectSolve)
+			}
+
+			if result.Size != tt.gridSize {
+				t.Errorf("SolveTetris() size = %d, expected %d", result.Size, tt.gridSize)
+			}
+		})
+	}
+}
+
+func TestSolveOptimal(t *testing.T) {
+	tests := []struct {
+		name        string
+		tetrominoes []*tetromino.Tetromino
+		expectSolve bool
+		maxSize     int
+	}{
+		{
+			name:        "empty tetrominoes",
+			tetrominoes: []*tetromino.Tetromino{},
+			expectSolve: false,
+			maxSize:     0,
+		},
+		{
+			name:        "single L-piece",
+			tetrominoes: createLPiece(),
+			expectSolve: true,
+			maxSize:     3,
+		},
+		{
+			name:        "single I-piece",
+			tetrominoes: createIPiece(),
+			expectSolve: true,
+			maxSize:     4,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := solver.SolveOptimal(tt.tetrominoes)
+			if err != nil {
+				t.Errorf("SolveOptimal() error = %v", err)
+				return
+			}
+
+			if result.Success != tt.expectSolve {
+				t.Errorf("SolveOptimal() success = %v, expected %v", result.Success, tt.expectSolve)
+			}
+
+			if tt.expectSolve && result.Size > tt.maxSize {
+				t.Errorf("SolveOptimal() size = %d, expected <= %d", result.Size, tt.maxSize)
+			}
+		})
+	}
+}
+
+func TestValidateSolution(t *testing.T) {
+	// Create a simple test case
+	tetrominoes := createLPiece()
+	result, err := solver.SolveTetris(tetrominoes, 3)
+	if err != nil {
+		t.Fatalf("Failed to create test solution: %v", err)
+	}
+
+	if !result.Success {
+		t.Skip("Could not create valid solution for test")
+	}
+
+	// Test validation
+	err = solver.ValidateSolution(result.Grid, tetrominoes)
+	if err != nil {
+		t.Errorf("ValidateSolution() error = %v", err)
+	}
+}
+
 func TestGetSolutionStats(t *testing.T) {
 	// Test with nil result
 	stats := solver.GetSolutionStats(nil)
