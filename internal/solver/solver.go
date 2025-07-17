@@ -131,3 +131,111 @@ func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool
 	return false
 }
 
+// canFitRemaining checks if the remaining tetrominoes can theoretically fit
+// in the remaining empty space (pruning optimization)
+func canFitRemaining(g *grid.Grid, tetrominoes []*tetromino.Tetromino, currentIndex int, currentPiece *tetromino.Tetromino, x, y int) bool {
+	// Calculate remaining pieces
+	remainingPieces := len(tetrominoes) - currentIndex - 1
+	if remainingPieces <= 0 {
+		return true
+	}
+
+	// Calculate empty cells after placing current piece
+	emptyCells := g.CountEmpty() - 4 // 4 blocks will be occupied by current piece
+
+	// Each remaining piece needs exactly 4 cells
+	requiredCells := remainingPieces * 4
+
+	// Simple check: do we have enough empty cells?
+	if emptyCells < requiredCells {
+		return false
+	}
+
+	return true
+}
+
+// SolveOptimal finds the optimal solution by trying increasing grid sizes
+func SolveOptimal(tetrominoes []*tetromino.Tetromino) (*Result, error) {
+	if len(tetrominoes) == 0 {
+		return &Result{Success: false, Size: 0}, nil
+	}
+
+	// Calculate minimum possible size
+	minSize := CalculateMinSquareSize(tetrominoes)
+
+	// Try increasing sizes until we find a solution
+	for size := minSize; size <= minSize+4; size++ { // Reasonable upper bound
+		result, err := SolveTetris(tetrominoes, size)
+		if err != nil {
+			return nil, err
+		}
+
+		if result.Success {
+			return result, nil
+		}
+	}
+
+	// If no solution found in reasonable range, return the last attempt
+	return SolveTetris(tetrominoes, minSize+4)
+}
+
+// ValidateSolution checks if a solution is valid
+func ValidateSolution(g *grid.Grid, tetrominoes []*tetromino.Tetromino) error {
+	// Check that all tetrominoes are placed correctly
+	placedPieces := make(map[rune]int)
+
+	for y := 0; y < g.Size; y++ {
+		for x := 0; x < g.Size; x++ {
+			cell, err := g.GetCell(x, y)
+			if err != nil {
+				return err
+			}
+
+			if cell != '.' {
+				placedPieces[cell]++
+			}
+		}
+	}
+
+	// Verify each tetromino is placed exactly once with 4 blocks
+	for _, t := range tetrominoes {
+		count, exists := placedPieces[t.ID]
+		if !exists {
+			return fmt.Errorf("tetromino %c not found in solution", t.ID)
+		}
+		if count != 4 {
+			return fmt.Errorf("tetromino %c has %d blocks instead of 4", t.ID, count)
+		}
+	}
+
+	// Check for extra pieces
+	expectedPieces := len(tetrominoes)
+	if len(placedPieces) != expectedPieces {
+		return fmt.Errorf("solution has %d pieces instead of %d", len(placedPieces), expectedPieces)
+	}
+
+	return nil
+}
+
+// GetSolutionStats returns statistics about the solution
+func GetSolutionStats(result *Result) map[string]interface{} {
+	if result == nil || result.Grid == nil {
+		return map[string]interface{}{
+			"success": false,
+		}
+	}
+
+	stats := map[string]interface{}{
+		"success":     result.Success,
+		"grid_size":   result.Size,
+		"total_cells": result.Size * result.Size,
+		"empty_cells": result.Grid.CountEmpty(),
+	}
+
+	if result.Success {
+		stats["filled_cells"] = stats["total_cells"].(int) - stats["empty_cells"].(int)
+		stats["utilization"] = float64(stats["filled_cells"].(int)) / float64(stats["total_cells"].(int))
+	}
+
+	return stats
+}
