@@ -25,9 +25,9 @@ func NewGridError(operation, message string) *GridError {
 
 // Common error types
 var (
-	ErrOutOfBounds    = NewGridError("bounds", "position is out of bounds")
-	ErrInvalidSize    = NewGridError("size", "invalid grid size")
-	ErrCellOccupied   = NewGridError("placement", "cell is already occupied")
-	ErrInvalidFormat  = tetromino.NewTetrominoError("parsing", "invalid tetromino format")
-	ErrInvalidBlocks  = tetromino.NewTetrominoError("validation", "tetromino must have exactly 4 blocks")
+	ErrOutOfBounds   = NewGridError("bounds", "position is out of bounds")
+	ErrInvalidSize   = NewGridError("size", "invalid grid size")
+	ErrCellOccupied  = NewGridError("placement", "cell is already occupied")
+	ErrInvalidFormat = tetromino.NewTetrominoError("parsing", "invalid tetromino format")
+	ErrInvalidBlocks = tetromino.NewTetrominoError("validation", "tetromino must have exactly 4 blocks")
 )
