@@ -2,10 +2,9 @@ package solver
 
 import (
 	"fmt"
+	"math"
 	"github.com/stkisengese/tetris-optimizer/internal/grid"
 	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
-	"math"
-	"sort"
 )
 
 // Result represents the solution result
@@ -25,27 +24,7 @@ func CalculateMinSquareSize(tetrominoes []*tetromino.Tetromino) int {
 
 	// Count total blocks across all tetrominoes
 	totalBlocks := len(tetrominoes) * 4 // Each tetromino has exactly 4 blocks
-
-	// Calculate theoretical minimum: ceil(sqrt(total_blocks))
-	minSize := int(math.Ceil(math.Sqrt(float64(totalBlocks))))
-
-	// Safety bounds - ensure minimum size is at least 1
-	if minSize < 1 {
-		minSize = 1
-	}
-
-	// For a single piece, minimum size should be at least the piece's dimensions
-	if len(tetrominoes) == 1 {
-		t := tetrominoes[0]
-		if t.Width > minSize {
-			minSize = t.Width
-		}
-		if t.Height > minSize {
-			minSize = t.Height
-		}
-	}
-
-	return minSize
+	return int(math.Ceil(math.Sqrt(float64(totalBlocks))))
 }
 
 // SolveTetris solves the tetris puzzle using backtracking
@@ -60,25 +39,7 @@ func SolveTetris(tetrominoes []*tetromino.Tetromino, gridSize int) (*Result, err
 		return nil, fmt.Errorf("failed to create grid: %v", err)
 	}
 
-	// Sort tetrominoes by size (largest first) for better pruning
-	sortedTetrominoes := make([]*tetromino.Tetromino, len(tetrominoes))
-	copy(sortedTetrominoes, tetrominoes)
-	sort.Slice(sortedTetrominoes, func(i, j int) bool {
-		// Sort by area (width * height), then by width, then by height
-		areaI := sortedTetrominoes[i].Width * sortedTetrominoes[i].Height
-		areaJ := sortedTetrominoes[j].Width * sortedTetrominoes[j].Height
-
-		if areaI != areaJ {
-			return areaI > areaJ
-		}
-		if sortedTetrominoes[i].Width != sortedTetrominoes[j].Width {
-			return sortedTetrominoes[i].Width > sortedTetrominoes[j].Width
-		}
-		return sortedTetrominoes[i].Height > sortedTetrominoes[j].Height
-	})
-
-	// Start backtracking
-	success := backtrack(g, sortedTetrominoes, 0)
+	success := backtrack(g, tetrominoes, 0)
 
 	return &Result{
 		Grid:    g,
@@ -87,7 +48,7 @@ func SolveTetris(tetrominoes []*tetromino.Tetromino, gridSize int) (*Result, err
 	}, nil
 }
 
-// backtrack implements the recursive backtracking algorithm
+// backtrack implements simple recursive backtracking
 func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool {
 	// Base case: all tetrominoes placed
 	if index >= len(tetrominoes) {
@@ -95,22 +56,15 @@ func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool
 	}
 
 	current := tetrominoes[index]
-
-	// Try all rotations of the current tetromino
+	
+	// Try all possible rotations
 	rotations := current.GenerateRotations()
-
 	for _, rotation := range rotations {
-		// Try all positions on the grid
+		// Try all possible positions
 		for y := 0; y <= g.Size-rotation.Height; y++ {
 			for x := 0; x <= g.Size-rotation.Width; x++ {
-				// Check if we can place the tetromino at this position
 				if g.CanPlaceTetromino(rotation, x, y) {
-					// Early pruning: check if remaining pieces can fit
-					if !canFitRemaining(g, tetrominoes, index, rotation, x, y) {
-						continue
-					}
-
-					// Place the tetromino
+					// Place the piece/tetromino
 					err := g.PlaceTetromino(rotation, x, y)
 					if err != nil {
 						continue
@@ -129,29 +83,6 @@ func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool
 	}
 
 	return false
-}
-
-// canFitRemaining checks if the remaining tetrominoes can theoretically fit
-// in the remaining empty space (pruning optimization)
-func canFitRemaining(g *grid.Grid, tetrominoes []*tetromino.Tetromino, currentIndex int, currentPiece *tetromino.Tetromino, x, y int) bool {
-	// Calculate remaining pieces
-	remainingPieces := len(tetrominoes) - currentIndex - 1
-	if remainingPieces <= 0 {
-		return true
-	}
-
-	// Calculate empty cells after placing current piece
-	emptyCells := g.CountEmpty() - 4 // 4 blocks will be occupied by current piece
-
-	// Each remaining piece needs exactly 4 cells
-	requiredCells := remainingPieces * 4
-
-	// Simple check: do we have enough empty cells?
-	if emptyCells < requiredCells {
-		return false
-	}
-
-	return true
 }
 
 // SolveOptimal finds the optimal solution by trying increasing grid sizes
