@@ -116,7 +116,6 @@ func (t *Tetromino) GetAbsolutePoints() []Point {
 	return result
 }
 
-
 // Rotate90 rotates the tetromino 90 degrees clockwise
 func (t *Tetromino) Rotate90() {
 	newPoints := make([]Point, len(t.Points))
