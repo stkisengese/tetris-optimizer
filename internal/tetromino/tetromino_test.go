@@ -197,3 +197,48 @@ func TestCloneAlias(t *testing.T) {
 		t.Error("Expected original tetromino to be unchanged after cloning")
 	}
 }
+
+func TestGetAbsolutePoints(t *testing.T) {
+	// Test L-shaped tetromino
+	grid := []string{
+		"#...",
+		"#...",
+		"##..",
+		"....",
+	}
+
+	tetro, err := tetromino.NewTetromino('L', grid)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	// Test with default position (0, 0)
+	absolutePoints := tetro.GetAbsolutePoints()
+
+	if len(absolutePoints) != 4 {
+		t.Errorf("Expected 4 absolute points, got %d", len(absolutePoints))
+	}
+
+	// With position (0, 0), absolute points should equal relative points
+	for i, absPoint := range absolutePoints {
+		expectedPoint := tetro.Points[i]
+		if absPoint.X != expectedPoint.X || absPoint.Y != expectedPoint.Y {
+			t.Errorf("Expected absolute point %d to be (%d, %d), got (%d, %d)",
+				i, expectedPoint.X, expectedPoint.Y, absPoint.X, absPoint.Y)
+		}
+	}
+
+	// Test with offset position
+	tetro.SetPosition(3, 2)
+	absolutePoints = tetro.GetAbsolutePoints()
+
+	// Verify all points are offset by (3, 2)
+	for i, absPoint := range absolutePoints {
+		expectedX := tetro.Points[i].X + 3
+		expectedY := tetro.Points[i].Y + 2
+		if absPoint.X != expectedX || absPoint.Y != expectedY {
+			t.Errorf("Expected absolute point %d to be (%d, %d), got (%d, %d)",
+				i, expectedX, expectedY, absPoint.X, absPoint.Y)
+		}
+	}
+}
