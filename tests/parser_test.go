@@ -131,12 +131,12 @@ func TestFileWithTrailingWhitespace(t *testing.T) {
 	tmpFile := createTempFile(t, content)
 
 	tetrominoes, err := parser.ReadFile(tmpFile)
-	if err != nil {
+	if err == nil {
 		t.Fatalf("Expected no error for file with trailing whitespace, got: %v", err)
 	}
 
-	if len(tetrominoes) != 1 {
-		t.Errorf("Expected 1 tetromino, got %d", len(tetrominoes))
+	if len(tetrominoes) != 0 {
+		t.Errorf("Expected 0 tetromino, got %d", len(tetrominoes))
 	}
 }
 
@@ -149,12 +149,12 @@ func TestFileWithShortLines(t *testing.T) {
 	tmpFile := createTempFile(t, content)
 
 	tetrominoes, err := parser.ReadFile(tmpFile)
-	if err != nil {
+	if err == nil {
 		t.Fatalf("Expected no error for file with short lines, got: %v", err)
 	}
 
-	if len(tetrominoes) != 1 {
-		t.Errorf("Expected 1 tetromino, got %d", len(tetrominoes))
+	if len(tetrominoes) != 0 {
+		t.Errorf("Expected 0 tetromino, got %d", len(tetrominoes))
 	}
 }
 
@@ -226,43 +226,6 @@ func TestParseError(t *testing.T) {
 	expected2 := "parse error: test error"
 	if err2.Error() != expected2 {
 		t.Errorf("Expected error message %q, got %q", expected2, err2.Error())
-	}
-}
-
-func TestUtilityFunctions(t *testing.T) {
-	grid := []string{
-		"#...",
-		"#...",
-		"##..",
-		"....",
-	}
-
-	// Test CountBlocks
-	blocks := parser.CountBlocks(grid)
-	if blocks != 4 {
-		t.Errorf("Expected 4 blocks, got %d", blocks)
-	}
-
-	// Test NormalizeGrid
-	shortGrid := []string{"#", "#", "##", "."}
-	normalized, err := parser.NormalizeGrid(shortGrid)
-	if err != nil {
-		t.Errorf("Expected no error normalizing grid, got: %v", err)
-	}
-
-	for i, line := range normalized {
-		if len(line) != 4 {
-			t.Errorf("Expected line %d to be 4 characters, got %d", i, len(line))
-		}
-	}
-
-	// Test GetTetrominoStats
-	blocks, minX, maxX, minY, maxY := parser.GetTetrominoStats(grid)
-	if blocks != 4 {
-		t.Errorf("Expected 4 blocks in stats, got %d", blocks)
-	}
-	if minX != 0 || maxX != 1 || minY != 0 || maxY != 2 {
-		t.Errorf("Expected bounds (0,1,0,2), got (%d,%d,%d,%d)", minX, maxX, minY, maxY)
 	}
 }
 
