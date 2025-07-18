@@ -20,7 +20,7 @@ func TestCalculateMinSquareSize(t *testing.T) {
 		{
 			name:        "single piece",
 			tetrominoes: createTestTetrominoes(1),
-			expected:    4, // ceil(sqrt(4)) = 2
+			expected:    2, // ceil(sqrt(4)) = 2
 		},
 		{
 			name:        "two pieces",
