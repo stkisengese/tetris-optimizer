@@ -1,8 +1,9 @@
 package tests
 
 import (
-	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 	"testing"
+
+	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 )
 
 func TestNewTetromino(t *testing.T) {
@@ -189,7 +190,7 @@ func TestCloneAlias(t *testing.T) {
 
 	// Test that Clone() is an alias for Copy()
 	cloned := tetro.Clone()
-	
+
 	// Test that it's a deep copy
 	cloned.SetPosition(5, 5)
 	if tetro.Position.X != 0 || tetro.Position.Y != 0 {

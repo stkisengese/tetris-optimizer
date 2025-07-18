@@ -81,12 +81,6 @@ func TestGridTetrominoPlacement(t *testing.T) {
 		t.Errorf("Expected no error placing tetromino, got %v", err)
 	}
 
-	// // Check that cells are occupied
-	// cell, _ := g.GetCell(0, 0)
-	// if cell != 'O' {
-	// 	t.Errorf("Expected 'O' at (0,0), got %c", cell)
-	// }
-
 	// Test invalid placement (overlapping)
 	if g.CanPlaceTetromino(tetro, 0, 0) {
 		t.Error("Should not be able to place tetromino on occupied cells")

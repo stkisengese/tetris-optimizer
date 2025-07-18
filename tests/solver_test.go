@@ -148,48 +148,6 @@ func TestSolveOptimal(t *testing.T) {
 	}
 }
 
-// func TestValidateSolution(t *testing.T) {
-// 	// Create a simple test case
-// 	tetrominoes := createLPiece()
-// 	result, err := solver.SolveTetris(tetrominoes, 3)
-// 	if err != nil {
-// 		t.Fatalf("Failed to create test solution: %v", err)
-// 	}
-
-// 	if !result.Success {
-// 		t.Skip("Could not create valid solution for test")
-// 	}
-
-// 	// Test validation
-// 	err = solver.ValidateSolution(result.Grid, tetrominoes)
-// 	if err != nil {
-// 		t.Errorf("ValidateSolution() error = %v", err)
-// 	}
-// }
-
-// func TestGetSolutionStats(t *testing.T) {
-// 	// Test with nil result
-// 	stats := solver.GetSolutionStats(nil)
-// 	if stats["success"] != false {
-// 		t.Errorf("Expected success=false for nil result")
-// 	}
-
-// 	// Test with valid result
-// 	tetrominoes := createLPiece()
-// 	result, err := solver.SolveTetris(tetrominoes, 3)
-// 	if err != nil {
-// 		t.Fatalf("Failed to create test solution: %v", err)
-// 	}
-
-// 	stats = solver.GetSolutionStats(result)
-// 	if stats["grid_size"] != 3 {
-// 		t.Errorf("Expected grid_size=3, got %v", stats["grid_size"])
-// 	}
-// 	if stats["total_cells"] != 9 {
-// 		t.Errorf("Expected total_cells=9, got %v", stats["total_cells"])
-// 	}
-// }
-
 // Helper functions for creating test tetrominoes
 
 func createTestTetrominoes(count int) []*tetromino.Tetromino {
