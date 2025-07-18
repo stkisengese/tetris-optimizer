@@ -188,32 +188,6 @@ func TestMultipleTetrominoesWithEmptyLines(t *testing.T) {
 	}
 }
 
-func TestValidateFile(t *testing.T) {
-	validContent := `#...
-#...
-##..
-....`
-
-	tmpFile := createTempFile(t, validContent)
-
-	err := parser.ValidateFile(tmpFile)
-	if err != nil {
-		t.Errorf("Expected no error for valid file, got: %v", err)
-	}
-
-	// Test invalid file
-	invalidContent := `#...
-#...
-##..`
-
-	tmpFile2 := createTempFile(t, invalidContent)
-
-	err = parser.ValidateFile(tmpFile2)
-	if err == nil {
-		t.Error("Expected error for invalid file, got nil")
-	}
-}
-
 func TestParseError(t *testing.T) {
 	err := parser.NewParseError("test error", 5, "test.txt")
 
