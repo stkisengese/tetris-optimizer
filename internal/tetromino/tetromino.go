@@ -17,10 +17,6 @@ func (p Point) String() string {
 	return fmt.Sprintf("(%d,%d)", p.X, p.Y)
 }
 
-// Equals checks if two points are equal
-func (p Point) Equals(other Point) bool {
-	return p.X == other.X && p.Y == other.Y
-}
 
 // Add returns a new point that is the sum of this point and another
 func (p Point) Add(other Point) Point {
@@ -99,7 +95,7 @@ func NewTetromino(id rune, grid []string) (*Tetromino, error) {
 }
 
 // Copy creates a deep copy of the tetromino
-func (t *Tetromino) Copy() *Tetromino {
+func (t *Tetromino) Clone() *Tetromino {
 	points := make([]Point, len(t.Points))
 	copy(points, t.Points)
 
@@ -110,11 +106,6 @@ func (t *Tetromino) Copy() *Tetromino {
 		Height:   t.Height,
 		Position: t.Position,
 	}
-}
-
-// Clone is an alias for Copy for backward compatibility
-func (t *Tetromino) Clone() *Tetromino {
-	return t.Copy()
 }
 
 // SetPosition updates the tetromino's position on the grid
@@ -131,38 +122,6 @@ func (t *Tetromino) GetAbsolutePoints() []Point {
 	return result
 }
 
-// GetBlocks returns the absolute coordinates of all blocks (Issue #5 requirement)
-func (t *Tetromino) GetBlocks() []Point {
-	return t.GetAbsolutePoints()
-}
-
-// GetBounds returns the bounding box coordinates (Issue #5 requirement)
-func (t *Tetromino) GetBounds() (minX, minY, maxX, maxY int) {
-	points := t.GetAbsolutePoints()
-	if len(points) == 0 {
-		return 0, 0, 0, 0
-	}
-
-	minX, minY = points[0].X, points[0].Y
-	maxX, maxY = points[0].X, points[0].Y
-
-	for _, p := range points[1:] {
-		if p.X < minX {
-			minX = p.X
-		}
-		if p.X > maxX {
-			maxX = p.X
-		}
-		if p.Y < minY {
-			minY = p.Y
-		}
-		if p.Y > maxY {
-			maxY = p.Y
-		}
-	}
-
-	return minX, minY, maxX, maxY
-}
 
 // Rotate90 rotates the tetromino 90 degrees clockwise
 func (t *Tetromino) Rotate90() {
@@ -181,56 +140,23 @@ func (t *Tetromino) Rotate90() {
 	t.Width, t.Height = t.Height, t.Width
 }
 
-// GenerateRotations generates all unique rotations of the tetromino (Issue #6 requirement)
+// GenerateRotations generates all unique rotations of the tetromino
 func (t *Tetromino) GenerateRotations() []*Tetromino {
 	rotations := make([]*Tetromino, 0, 4)
-	current := t.Copy()
+	current := t.Clone()
 
 	seen := make(map[string]bool)
 
 	for i := 0; i < 4; i++ {
 		key := current.ShapeKey()
 		if !seen[key] {
-			rotations = append(rotations, current.Copy())
+			rotations = append(rotations, current.Clone())
 			seen[key] = true
 		}
 		current.Rotate90()
 	}
 
 	return rotations
-}
-
-// Normalize positions the tetromino at the origin (Issue #6 requirement)
-func (t *Tetromino) Normalize() {
-	t.Points = t.normalizePoints(t.Points)
-}
-
-// Translate adjusts the tetromino's position by the given offset (Issue #6 requirement)
-func (t *Tetromino) Translate(dx, dy int) {
-	t.Position.X += dx
-	t.Position.Y += dy
-}
-
-// IsEquivalent checks if two tetrominoes have the same shape (Issue #6 requirement)
-func (t *Tetromino) IsEquivalent(other *Tetromino) bool {
-	if t.ID != other.ID {
-		return false
-	}
-
-	// Generate all rotations of both tetrominoes
-	rotations1 := t.GenerateRotations()
-	rotations2 := other.GenerateRotations()
-
-	// Check if any rotation of t matches any rotation of other
-	for _, r1 := range rotations1 {
-		for _, r2 := range rotations2 {
-			if r1.shapeEquals(r2) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 // normalizePoints adjusts points so the minimum x and y are 0
@@ -281,19 +207,6 @@ func (t *Tetromino) ShapeKey() string {
 	return builder.String()
 }
 
-// shapeEquals compares two tetrominoes for shape equality (ignoring position)
-func (t *Tetromino) shapeEquals(other *Tetromino) bool {
-	if len(t.Points) != len(other.Points) {
-		return false
-	}
-
-	if t.Width != other.Width || t.Height != other.Height {
-		return false
-	}
-
-	return t.ShapeKey() == other.ShapeKey()
-}
-
 // String returns a string representation of the tetromino
 func (t *Tetromino) String() string {
 	var builder strings.Builder
@@ -321,28 +234,4 @@ func (t *Tetromino) String() string {
 	}
 
 	return builder.String()
-}
-
-// Equals checks if two tetrominoes are equal
-func (t *Tetromino) Equals(other *Tetromino) bool {
-	if t.ID != other.ID || len(t.Points) != len(other.Points) {
-		return false
-	}
-
-	if t.Width != other.Width || t.Height != other.Height {
-		return false
-	}
-
-	if !t.Position.Equals(other.Position) {
-		return false
-	}
-
-	// Check if all points match
-	for i, p := range t.Points {
-		if !p.Equals(other.Points[i]) {
-			return false
-		}
-	}
-
-	return true
 }
