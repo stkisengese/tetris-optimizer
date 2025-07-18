@@ -138,6 +138,9 @@ tetris-optimizer/
 ### Building
 ```bash
 make build
+
+# Makefile help information
+make help
 ```
 
 ### Testing
@@ -162,6 +165,9 @@ make lint
 
 # Run all quality checks
 make check
+
+#clean build artifacts
+make clean
 ```
 
 ## Error Handling
