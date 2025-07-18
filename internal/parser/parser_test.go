@@ -1,4 +1,4 @@
-package tests
+package parser_test
 
 import (
 	"fmt"

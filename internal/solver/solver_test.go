@@ -1,4 +1,4 @@
-package tests
+package solver_test
 
 import (
 	"testing"

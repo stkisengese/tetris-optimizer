@@ -1,4 +1,4 @@
-package tests
+package tetromino_test
 
 import (
 	"testing"

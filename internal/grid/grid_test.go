@@ -1,4 +1,4 @@
-package tests
+package grid_test
 
 import (
 	"testing"
