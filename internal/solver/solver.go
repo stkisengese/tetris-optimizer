@@ -3,6 +3,7 @@ package solver
 import (
 	"fmt"
 	"math"
+
 	"github.com/stkisengese/tetris-optimizer/internal/grid"
 	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 )
@@ -56,7 +57,7 @@ func backtrack(g *grid.Grid, tetrominoes []*tetromino.Tetromino, index int) bool
 	}
 
 	current := tetrominoes[index]
-	
+
 	// Try all possible rotations
 	rotations := current.GenerateRotations()
 	for _, rotation := range rotations {
@@ -108,65 +109,4 @@ func SolveOptimal(tetrominoes []*tetromino.Tetromino) (*Result, error) {
 
 	// If no solution found in reasonable range, return the last attempt
 	return SolveTetris(tetrominoes, minSize+4)
-}
-
-// ValidateSolution checks if a solution is valid
-func ValidateSolution(g *grid.Grid, tetrominoes []*tetromino.Tetromino) error {
-	// Check that all tetrominoes are placed correctly
-	placedPieces := make(map[rune]int)
-
-	for y := 0; y < g.Size; y++ {
-		for x := 0; x < g.Size; x++ {
-			cell, err := g.GetCell(x, y)
-			if err != nil {
-				return err
-			}
-
-			if cell != '.' {
-				placedPieces[cell]++
-			}
-		}
-	}
-
-	// Verify each tetromino is placed exactly once with 4 blocks
-	for _, t := range tetrominoes {
-		count, exists := placedPieces[t.ID]
-		if !exists {
-			return fmt.Errorf("tetromino %c not found in solution", t.ID)
-		}
-		if count != 4 {
-			return fmt.Errorf("tetromino %c has %d blocks instead of 4", t.ID, count)
-		}
-	}
-
-	// Check for extra pieces
-	expectedPieces := len(tetrominoes)
-	if len(placedPieces) != expectedPieces {
-		return fmt.Errorf("solution has %d pieces instead of %d", len(placedPieces), expectedPieces)
-	}
-
-	return nil
-}
-
-// GetSolutionStats returns statistics about the solution
-func GetSolutionStats(result *Result) map[string]interface{} {
-	if result == nil || result.Grid == nil {
-		return map[string]interface{}{
-			"success": false,
-		}
-	}
-
-	stats := map[string]interface{}{
-		"success":     result.Success,
-		"grid_size":   result.Size,
-		"total_cells": result.Size * result.Size,
-		"empty_cells": result.Grid.CountEmpty(),
-	}
-
-	if result.Success {
-		stats["filled_cells"] = stats["total_cells"].(int) - stats["empty_cells"].(int)
-		stats["utilization"] = float64(stats["filled_cells"].(int)) / float64(stats["total_cells"].(int))
-	}
-
-	return stats
 }

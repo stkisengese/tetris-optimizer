@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/stkisengese/tetris-optimizer/internal/parser"
 	"github.com/stkisengese/tetris-optimizer/internal/solver"
-	"os"
 )
 
 func main() {
@@ -31,12 +32,6 @@ func main() {
 
 	// Check if solution was found
 	if !result.Success {
-		fmt.Println("ERROR")
-		os.Exit(1)
-	}
-
-	// Validate the solution
-	if err := solver.ValidateSolution(result.Grid, tetrominoes); err != nil {
 		fmt.Println("ERROR")
 		os.Exit(1)
 	}
