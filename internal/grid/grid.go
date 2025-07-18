@@ -2,8 +2,9 @@ package grid
 
 import (
 	"fmt"
-	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 	"strings"
+
+	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 )
 
 // Grid represents the solution board
@@ -98,19 +99,6 @@ func (g *Grid) RemoveTetromino(t *tetromino.Tetromino) {
 	}
 }
 
-// CountEmpty returns the number of empty cells in the grid
-func (g *Grid) CountEmpty() int {
-	count := 0
-	for _, row := range g.Cells {
-		for _, cell := range row {
-			if cell == '.' {
-				count++
-			}
-		}
-	}
-	return count
-}
-
 // String returns a string representation of the grid
 func (g *Grid) String() string {
 	var builder strings.Builder
@@ -121,30 +109,4 @@ func (g *Grid) String() string {
 	}
 
 	return builder.String()
-}
-
-// Clear resets all cells to empty
-func (g *Grid) Clear() {
-	for i := range g.Cells {
-		for j := range g.Cells[i] {
-			g.Cells[i][j] = '.'
-		}
-	}
-}
-
-// GetCell returns the content of a cell at the given position
-func (g *Grid) GetCell(x, y int) (rune, error) {
-	if !g.IsValidPosition(x, y) {
-		return '.', fmt.Errorf("position (%d, %d) is out of bounds", x, y)
-	}
-	return g.Cells[y][x], nil
-}
-
-// SetCell sets the content of a cell at the given position
-func (g *Grid) SetCell(x, y int, value rune) error {
-	if !g.IsValidPosition(x, y) {
-		return fmt.Errorf("position (%d, %d) is out of bounds", x, y)
-	}
-	g.Cells[y][x] = value
-	return nil
 }
