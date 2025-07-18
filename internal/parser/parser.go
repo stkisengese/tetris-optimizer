@@ -3,8 +3,9 @@ package parser
 import (
 	"bufio"
 	"fmt"
-	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 	"os"
+
+	"github.com/stkisengese/tetris-optimizer/internal/tetromino"
 )
 
 // ParseError represents errors that occur during parsing
@@ -158,10 +159,4 @@ func isConnected(grid [4][4]byte, startX, startY int) bool {
 		}
 	}
 	return count == 4
-}
-
-// ValidateFile performs quick validation of file format without full parsing
-func ValidateFile(filename string) error {
-	_, err := ReadFile(filename)
-	return err
 }
