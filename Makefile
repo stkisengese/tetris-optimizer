@@ -30,19 +30,19 @@ run-with-args: build
 .PHONY: test
 test:
 	@echo "Running tests..."
-	@go test -v ./tests/...
+	@go test -v ./...
 
 # Run tests with coverage
 .PHONY: test-coverage
 test-coverage:
 	@echo "Running tests with coverage..."
-	@go test -v -cover ./tests/...
+	@go test -v -cover ./...
 
 # Generate detailed coverage report
 .PHONY: coverage-report
 coverage-report:
 	@echo "Generating coverage report..."
-	@go test -coverprofile=coverage.out ./tests/...
+	@go test -coverprofile=coverage.out ./...
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 
@@ -81,7 +81,7 @@ deps:
 .PHONY: init
 init:
 	@echo "Initializing Go module..."
-	@go mod init tetris-optimizer
+	@go mod init github.com/stkisengese/tetris-optimizer
 
 # Development target - format, lint, test, and build
 .PHONY: dev
