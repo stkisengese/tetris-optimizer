@@ -12,12 +12,6 @@ type Point struct {
 	Y int
 }
 
-// String returns string representation of Point
-func (p Point) String() string {
-	return fmt.Sprintf("(%d,%d)", p.X, p.Y)
-}
-
-
 // Add returns a new point that is the sum of this point and another
 func (p Point) Add(other Point) Point {
 	return Point{X: p.X + other.X, Y: p.Y + other.Y}
@@ -202,35 +196,6 @@ func (t *Tetromino) ShapeKey() string {
 			builder.WriteString(",")
 		}
 		builder.WriteString(fmt.Sprintf("%d:%d", p.X, p.Y))
-	}
-
-	return builder.String()
-}
-
-// String returns a string representation of the tetromino
-func (t *Tetromino) String() string {
-	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("Tetromino %c (%dx%d) at %s:\n",
-		t.ID, t.Width, t.Height, t.Position))
-
-	// Create a visual representation
-	grid := make([][]rune, t.Height)
-	for i := range grid {
-		grid[i] = make([]rune, t.Width)
-		for j := range grid[i] {
-			grid[i][j] = '.'
-		}
-	}
-
-	for _, p := range t.Points {
-		if p.Y < t.Height && p.X < t.Width {
-			grid[p.Y][p.X] = t.ID
-		}
-	}
-
-	for _, row := range grid {
-		builder.WriteString(string(row))
-		builder.WriteString("\n")
 	}
 
 	return builder.String()
