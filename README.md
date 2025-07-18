@@ -23,14 +23,14 @@ Tetris Optimizer reads a file containing tetromino definitions and uses a backtr
 
 ### Build from Source
 ```bash
-git clone https://github.com/yourusername/tetris-optimizer.git
+git clone https://github.com/stkisengese/tetris-optimizer.git
 cd tetris-optimizer
 go build -o tetris-optimizer cmd/main.go
 ```
 
 ### Using Go Install
 ```bash
-go install github.com/yourusername/tetris-optimizer/cmd@latest
+go install github.com/stkisengese/tetris-optimizer/cmd@latest
 ```
 
 ## Usage
@@ -43,15 +43,16 @@ go install github.com/yourusername/tetris-optimizer/cmd@latest
 
 ```bash
 # Run with sample file
-./tetris-optimizer testdata/sample.txt
+./tetris-optimizer sample.txt
 
 # Output:
-ABBBB.
-ACCCEE
-AFFCEE
-A.FFGG
-HHHDDG
-.HDD.G
+AAB..CC
+AABBCCE
+DDBIIEE
+DDII.E.
+FFFJKGG
+HHFJKKG
+HH.JJKG
 ```
 
 ## Input Format
@@ -110,6 +111,8 @@ The program uses a sophisticated approach to solve the tetromino puzzle:
 ```
 tetris-optimizer/
 ├── cmd/
+|   ├── app.go
+|   ├── app_test.go
 │   └── main.go              # CLI application entry point
 ├── internal/
 │   ├── parser/              # File parsing and validation
@@ -117,24 +120,16 @@ tetris-optimizer/
 │   │   └── parser_test.go
 │   ├── tetromino/           # Tetromino representation and operations
 │   │   ├── tetromino.go
-│   │   ├── rotation.go
 │   │   └── tetromino_test.go
 │   ├── grid/                # Grid management and operations
 │   │   ├── grid.go
 │   │   └── grid_test.go
 │   └── solver/              # Core solving algorithm
 │       ├── solver.go
-│       ├── optimizer.go
 │       └── solver_test.go
-├── testdata/                # Test input files
-│   ├── sample.txt
-│   ├── simple.txt
-│   └── complex.txt
-├── tests/                   # Integration tests
 ├── docs/                    # Additional documentation
 ├── Makefile                 # Build automation
 ├── go.mod                   # Go module definition
-├── go.sum                   # Dependency checksums
 └── README.md               # This file
 ```
 
@@ -210,7 +205,7 @@ The program handles various error conditions gracefully:
 go test ./...
 
 # Integration tests
-go test -tags=integration ./tests/...
+go test -tags=integration ./...
 
 # Specific package tests
 go test ./internal/solver/...
@@ -239,21 +234,7 @@ go test ./internal/solver/...
 ## Examples
 
 ### Basic Usage
-```bash
-# Simple 2-piece puzzle
-echo -e "#...\n#...\n#...\n#...\n\n.##.\n.##.\n....\n...." > simple.txt
-./tetris-optimizer simple.txt
-```
 
-Output:
-```
-AA##
-AA##
-A...
-A...
-```
-
-### Complex Puzzle
 ```bash
 ./tetris-optimizer testdata/complex.txt
 ```
